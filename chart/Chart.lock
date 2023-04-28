@@ -1,0 +1,12 @@
+dependencies:
+- name: promtail
+  repository: https://grafana.github.io/helm-charts
+  version: 6.10.0
+- name: grafana
+  repository: https://grafana.github.io/helm-charts
+  version: 6.54.0
+- name: telegraf-ds
+  repository: https://helm.influxdata.com/
+  version: 1.1.9
+digest: sha256:abc1fa871cbe8467b9816275fede0bcdaa9037332833f5c71d14342f14e64237
+generated: "2023-04-28T19:06:48.406397+02:00"
