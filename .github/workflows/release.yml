@@ -18,10 +18,14 @@ jobs:
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-
+      - name: Helm tool installer
+        uses: Azure/setup-helm@v3
+      - name: Update helm subcharts
+        run: |
+          helm dependency update watchtower/
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.5.0
         with:
-          charts_dir: .
+          charts_dir: watchtower
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
