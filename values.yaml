@@ -1,0 +1,117 @@
+grafana:
+  persistence:
+    enabled: true
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+      - name: Loki
+        type: loki
+        access: proxy
+        url: http://loki:3100
+        jsonData:
+          maxLines: 1000
+      - name: InfluxDB
+        type: influxdb
+        access: proxy
+        database: metrics
+        url: http://influxdb:8086
+        jsonData:
+          httpMode: GET
+  dashboardProviders:
+   dashboardproviders.yaml:
+     apiVersion: 1
+     providers:
+     - name: 'default'
+       orgId: 1
+       folder: ''
+       type: file
+       disableDeletion: false
+       editable: true
+       options:
+         path: /var/lib/grafana/dashboards/default
+  dashboards:
+    default:
+
+telegraf-ds:
+  config:
+    docker_endpoint: ""
+  override_config:
+    toml: |
+      [agent]
+        hostname = "$HOSTNAME"
+        interval = "30s"
+
+      [[outputs.influxdb]]
+        urls = ["http://influxdb:8086"]
+        database = "metrics"
+
+      [[inputs.cpu]]
+        percpu = true
+        totalcpu = true
+      [[inputs.disk]]
+        ignore_fs = ["tmpfs", "devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs"]
+      [[inputs.diskio]]
+       devices = ["sda"]
+      [[inputs.mem]]
+      [[inputs.net]]
+        interfaces = ["eth*"]
+        ignore_protocol_stats = true
+      [[inputs.processes]]
+      [[inputs.system]]
+      [[inputs.kubernetes]]
+
+promtail:
+  extraVolumeMounts:
+  - mountPath: /log/kube-apiserver-audit.log
+    name: host-audit-logs
+  extraVolumes:
+  - name: host-audit-logs
+    hostPath:
+      path: /var/log/k8s-apiserver-audit.log
+  config:
+    clients:
+      - url: http://loki:3100/loki/api/v1/push
+    snippets:
+      extraScrapeConfigs: |
+        - job_name: kube-audit
+          pipeline_stages:
+          - json:
+              expressions:
+                verb: verb
+                objectRef:
+                user:
+                annotations:
+          - json:
+              expressions:
+                namespace:
+              source: objectRef
+          - json:
+              expressions:
+                resource:
+              source: objectRef
+          - json:
+              expressions:
+                name:
+              source: objectRef
+          - json:
+              expressions:
+                username:
+              source: user 
+          - json:
+              expressions:
+                decision: '"authorization.k8s.io/decision"'
+              source: annotations
+          - labels:
+              decision:
+              username:
+              namespace:
+              resource:
+              verb:
+              resource_name: name
+          static_configs:
+          - targets:
+              - localhost
+            labels:
+              job: kube-audit
+              __path__: /log/kube-apiserver-audit.log
