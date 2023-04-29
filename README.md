@@ -6,7 +6,6 @@ A minimal k8s observalbility stack providing:
 - host level & kubernetes metrics,
 - RBAC audit log monitoring
 
-_insert dashboards screenshot here_
 
 
 ## deployment
@@ -50,15 +49,23 @@ You can refer to https://kubernetes.io/docs/tasks/debug/debug-cluster/audit/ if 
 
 ### deploy the stack
 
-it's recommended to deploy the stack in a separate namespace:
-
+Add the repo to helm and get the default values.yaml file
 ```
-helm upgrade --install --namespace watchtower --create-namespace watchtower .
+helm repo add watchtower https://k0rventen.github.io/k8s-watchtower/
+helm show values watchtower/watchtower > defaults.yaml
+```
+
+Review and modify if necessary the values according to your setup (mainly for the Audit Log part)
+
+
+Then deploy ! (preferably in a separate namespace)
+```
+helm upgrade --install --namespace watchtower --create-namespace watchtower -f defaults.yaml watchtower/watchtower
 ```
 
 Once deployed, port-forward the `grafana` service to your machine
 ```
-kp services/watchtower-grafana -n watchtower 3000:80
+kubectl port-forward -n watchtower svc/watchtower-grafana 3000
 ```
 
 then access the dashboards at `http://localhost:3000`.
