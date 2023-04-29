@@ -3,6 +3,26 @@ entries:
   watchtower:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2023-04-29T18:17:14.359339806Z"
+    dependencies:
+    - name: promtail
+      repository: https://grafana.github.io/helm-charts
+      version: 6.11.0
+    - name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 6.56.0
+    - name: telegraf-ds
+      repository: https://helm.influxdata.com/
+      version: 1.1.9
+    description: A basic observability stack for k8s
+    digest: 21422f621ceff69fc0ca144fda1a7cd15028c53c14f52600f2e19e4224d96593
+    name: watchtower
+    type: application
+    urls:
+    - https://github.com/k0rventen/k8s-watchtower/releases/download/watchtower-0.4.0/watchtower-0.4.0.tgz
+    version: 0.4.0
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2023-04-28T20:22:38.538022015Z"
     dependencies:
     - name: promtail
@@ -21,4 +41,4 @@ entries:
     urls:
     - https://github.com/k0rventen/k8s-watchtower/releases/download/watchtower-0.3.0/watchtower-0.3.0.tgz
     version: 0.3.0
-generated: "2023-04-28T20:22:38.538034115Z"
+generated: "2023-04-29T18:17:14.359353006Z"
