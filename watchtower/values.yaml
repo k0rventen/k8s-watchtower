@@ -1,22 +1,38 @@
+# where on the host is the audit log file ?
+audit_log:
+  host_file: &audit_log_file "/var/log/k8s-apiserver-audit.log"
+
+
+# subcharts configuration
+# should not be necessary to change them
 grafana:
+  service:
+    port: 3000
+  image:
+    tag: 9.5.1
   persistence:
     enabled: true
+    size: 100Mi
   datasources:
     datasources.yaml:
       apiVersion: 1
       datasources:
       - name: Loki
         type: loki
+        uid: lokids1
         access: proxy
         url: http://loki:3100
+        editable: true
         jsonData:
           maxLines: 1000
       - name: InfluxDB
         type: influxdb
+        uid: influxds1
         access: proxy
-        database: metrics
         url: http://influxdb:8086
+        editable: true
         jsonData:
+          dbName: metrics
           httpMode: GET
   dashboardProviders:
    dashboardproviders.yaml:
@@ -32,8 +48,14 @@ grafana:
          path: /var/lib/grafana/dashboards/default
   dashboards:
     default:
-
+          
 telegraf-ds:
+  hostNetwork: true
+  dnsPolicy: ClusterFirstWithHostNet
+  rbac:
+    create: false
+  serviceAccount:
+    create: false
   config:
     docker_endpoint: ""
   override_config:
@@ -54,12 +76,10 @@ telegraf-ds:
       [[inputs.diskio]]
        devices = ["sda"]
       [[inputs.mem]]
-      [[inputs.net]]
-        interfaces = ["eth*"]
-        ignore_protocol_stats = true
       [[inputs.processes]]
       [[inputs.system]]
-      [[inputs.kubernetes]]
+      [[inputs.net]]
+        interfaces = ["eth*","ens*"]
 
 promtail:
   extraVolumeMounts:
@@ -68,7 +88,7 @@ promtail:
   extraVolumes:
   - name: host-audit-logs
     hostPath:
-      path: /var/log/k8s-apiserver-audit.log
+      path: *audit_log_file
   config:
     clients:
       - url: http://loki:3100/loki/api/v1/push

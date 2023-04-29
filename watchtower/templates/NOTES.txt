@@ -1,0 +1,8 @@
+watchtower is now deployed ! 
+
+You should be able to access grafana through a port-forward:
+> kubectl port-forward -n {{ .Release.Namespace }} svc/{{.Release.Name}}-grafana 3000
+
+The credentials are in a {{ .Release.Name }}-grafana secret.
+You can retrieve the admin password using this oneliner:
+> kubectl get secrets -n {{ .Release.Namespace }}  {{.Release.Name}}-grafana -o yaml | yq '.data.admin-password' | base64 -d
