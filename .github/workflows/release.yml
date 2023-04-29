@@ -12,24 +12,35 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Configure Git
+      - name: git config
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-      - name: Helm tool installer
+
+      - name: install helm
         uses: Azure/setup-helm@v3
-      - name: Update helm subcharts
+      
+      - name: helm linting
         run: |
           helm repo add grafana https://grafana.github.io/helm-charts
           helm repo add influx https://helm.influxdata.com/ 
-          
           helm dependency update watchtower/
-      - name: Run chart-releaser
+          helm lint --strict watchtower/
+
+      - name: create test cluster
+        uses: helm/kind-action@v1.4.0
+
+      - name: install watchtower
+        run: |
+          helm upgrade --wait --install --namespace watchtower --create-namespace watchtower watchtower/ 
+          kubectl get all -n watchtower
+
+      - name: run chart-releaser
         uses: helm/chart-releaser-action@v1.5.0
         with:
           charts_dir: ./
