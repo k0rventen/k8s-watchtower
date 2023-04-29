@@ -48,7 +48,13 @@ grafana:
          path: /var/lib/grafana/dashboards/default
   dashboards:
     default:
-          
+      audit:
+        url: https://raw.githubusercontent.com/k0rventen/k8s-watchtower/main/dashboards/audit_dashboard.json
+      host:
+        url: https://raw.githubusercontent.com/k0rventen/k8s-watchtower/main/dashboards/hosts_metrics.json
+      apps:
+        url: https://raw.githubusercontent.com/k0rventen/k8s-watchtower/main/dashboards/workloads_dashboard.json
+
 telegraf-ds:
   hostNetwork: true
   dnsPolicy: ClusterFirstWithHostNet
