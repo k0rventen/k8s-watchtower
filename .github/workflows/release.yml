@@ -1,5 +1,8 @@
 name: Release Chart
 
+permissions:
+  contents: write
+  
 on:
   push:
     tags:
