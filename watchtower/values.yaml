@@ -58,10 +58,6 @@ grafana:
 telegraf-ds:
   hostNetwork: true
   dnsPolicy: ClusterFirstWithHostNet
-  rbac:
-    create: false
-  serviceAccount:
-    create: false
   config:
     docker_endpoint: ""
   override_config:
@@ -86,6 +82,9 @@ telegraf-ds:
       [[inputs.system]]
       [[inputs.net]]
         interfaces = ["eth*","ens*"]
+      [[inputs.kubernetes]]
+        url = "https://$HOSTIP:10250"
+        insecure_skip_verify = true
 
 promtail:
   extraVolumeMounts:
