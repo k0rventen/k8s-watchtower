@@ -1,4 +1,4 @@
-name: Release Charts
+name: Test watchtower helm chart
 
 on:
   push:
