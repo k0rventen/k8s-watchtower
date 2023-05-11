@@ -19,7 +19,6 @@ jobs:
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
-
       - name: install helm
         uses: Azure/setup-helm@v3
       
@@ -38,6 +37,13 @@ jobs:
           helm upgrade --wait --install --namespace watchtower --create-namespace watchtower watchtower/ 
           kubectl get all -n watchtower
 
+      - name: Update CHANGELOG
+        id: changelog
+        uses: requarks/changelog-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref_name }}
+
       - name: run chart-releaser
         uses: helm/chart-releaser-action@v1.5.0
         with:
@@ -46,18 +52,11 @@ jobs:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           CR_SKIP_EXISTING: "true"
 
-      - name: Update CHANGELOG
-        id: changelog
-        uses: requarks/changelog-action@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.ref_name }}
 
-      - name: Create Release
+      - name: Update Release notes
         uses: ncipollo/release-action@v1.12.0
         with:
           allowUpdates: true
-          draft: true
           makeLatest: true
           name: ${{ github.ref_name }}
           body: ${{ steps.changelog.outputs.changes }}
