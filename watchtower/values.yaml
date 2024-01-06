@@ -1,15 +1,15 @@
 # where on the host is the audit log file ?
 audit_log:
-  host_file: &audit_log_file "/var/log/k8s-apiserver-audit.log"
+  host_file: &audit_log_file "/var/log/kubernetes/kube-apiserver-audit.log"
 
 
 # subcharts configuration
-# should not be necessary to change them
+# should not be necessary to change anyhing below unless you have a very specific setup 
 grafana:
   service:
     port: 3000
   image:
-    tag: 9.5.1
+    tag: 10.2.3
   persistence:
     enabled: true
     size: 100Mi
