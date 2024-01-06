@@ -44,7 +44,9 @@ then access the dashboards at `http://localhost:3000`.
 
 ### Enabling the Audit Log
 
-Add the following arguments to the APIserver config:
+For a more thorough documentation on the audit subject, head over to the [kubernetes doc](https://kubernetes.io/docs/tasks/debug/debug-cluster/audit/).
+
+Add the following arguments to the APIserver config (args self explanatory):
 
 ```sh
 --audit-log-maxbackup=3
@@ -56,6 +58,7 @@ Add the following arguments to the APIserver config:
 
 
 Create a new file at the path you specified in the `audit-policy-file` argument, which defines your audit policy:
+
 ```yaml
 apiVersion: audit.k8s.io/v1
 kind: Policy
@@ -69,13 +72,13 @@ rules:
 
 In this example we ask the cluster to log every request at the metadata level, in namespaces `app` and `app2`. If you don't specify `namespaces`, all namespaces will be audited. 
 
-You can refer to https://kubernetes.io/docs/tasks/debug/debug-cluster/audit/ if you want further tweaks.
+Again, you can refer to [the doc](https://kubernetes.io/docs/tasks/debug/debug-cluster/audit/) if you want to tweak your audit policy further.
 
 ### Testing on kind
 
-If you want a quick test environment to assess the stack, you can do so using [kind]():
+If you want a quick test environment to assess the stack, you can do so using [kind](https://kind.sigs.k8s.io/):
 
-Clone the repo `git clone https://github.com/k0rventen/k8s-watchtower.git` then cd into it.
+Clone the repo `git clone https://github.com/k0rventen/k8s-watchtower.git` then `cd` into it.
 
 The `kind/kind-config.yaml` defines a 3 nodes cluster with `audit/policy.yaml` mounted on the control plane.
 You can launch this cluster using: 
@@ -84,14 +87,21 @@ You can launch this cluster using:
 kind create cluster --config kind/kind-config.yaml
 ```
 
-Once it's up you can change your kubeconfif to target the new cluster, then apply the helm chart as usual:
+Once it's up you can change your kubeconfig to target the new cluster, then apply the helm chart as usual:
 
 ```
 helm upgrade --install --namespace watchtower --create-namespace watchtower -f values.yaml ./
 ```
 
-You can now check on the watchtower dashboards while creating new workloads (check also the RBAC dash to visualize API access):
+You can now check on the watchtower dashboards while creating new workloads:
 
 ```
-k create deploy --image traefik/whoami --replicas 7 whoami
+kubectl create deploy --image traefik/whoami --replicas 7 whoami
+```
+
+You can also check the RBAC dash to visualize API access while creating the resources ! 
+This will launch a pod that will generate a unauthorized request to the kube api:
+```
+kubectl create ns app
+kubectl run -n app -it --rm --image bitnami/kubectl --restart Never rbac-test get pods
 ```
