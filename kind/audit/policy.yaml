@@ -1,0 +1,8 @@
+apiVersion: audit.k8s.io/v1
+kind: Policy
+omitStages:
+  - "RequestReceived"
+  - "ResponseStarted"
+rules:
+- level: Metadata
+  namespaces: ["app","default"]
