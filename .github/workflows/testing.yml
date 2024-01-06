@@ -14,11 +14,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: git config
-        run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-
       - name: install helm
         uses: Azure/setup-helm@v3
       
@@ -31,6 +26,8 @@ jobs:
 
       - name: create test cluster
         uses: helm/kind-action@v1.4.0
+        with:
+          config: ./kind/kind-config.yaml
 
       - name: install watchtower
         run: |

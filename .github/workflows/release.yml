@@ -34,6 +34,8 @@ jobs:
 
       - name: create test cluster
         uses: helm/kind-action@v1.4.0
+        with:
+          config: ./kind/kind-config.yaml
 
       - name: install watchtower
         run: |
