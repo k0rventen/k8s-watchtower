@@ -31,7 +31,38 @@ nodes:
     containerPath: /etc/kubernetes/policies/audit-policy.yaml
     readOnly: true
 
+- role: control-plane
+  kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    apiServer:
+        # enable auditing flags on the API server
+        extraArgs:
+          audit-log-maxbackup: "3"
+          audit-log-maxsize: "1024"
+          audit-log-maxage: "30"
+          audit-log-path: /var/log/kubernetes/kube-apiserver-audit.log
+          audit-policy-file: /etc/kubernetes/policies/audit-policy.yaml
+        # mount new files / directories on the control plane
+        extraVolumes:
+          - name: audit-policies
+            hostPath: /etc/kubernetes/policies
+            mountPath: /etc/kubernetes/policies
+            readOnly: true
+            pathType: "DirectoryOrCreate"
+          - name: "audit-logs"
+            hostPath: "/var/log/kubernetes"
+            mountPath: "/var/log/kubernetes"
+            readOnly: false
+            pathType: DirectoryOrCreate
+  # mount the local audit file on the control plane
+  extraMounts:
+  - hostPath: ./kind/audit/policy.yaml
+    containerPath: /etc/kubernetes/policies/audit-policy.yaml
+    readOnly: true
 
-# and 2 workers
+
+# and 3 workers
+- role: worker
 - role: worker
 - role: worker
