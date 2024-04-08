@@ -9,7 +9,7 @@ grafana:
   service:
     port: 3000
   image:
-    tag: 10.2.3
+    tag: 10.4.0
   persistence:
     enabled: true
     size: 100Mi
